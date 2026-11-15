@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 //! dbt (Data Build Tool) Model DAG Compiler for SigmaOS
 use std::collections::{HashMap, HashSet, VecDeque};
 
