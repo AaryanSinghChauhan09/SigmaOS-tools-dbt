@@ -3,7 +3,7 @@ name = "SigmaOS-tools-dbt"
 tier = 2
 stability = "scaffold"
 language = "rust"
-description = "tools-dbt component"
+description = "SigmaOS Tools dbt - DAG compiler and model topological sorter"
 upstream = []
 
 [contract]
