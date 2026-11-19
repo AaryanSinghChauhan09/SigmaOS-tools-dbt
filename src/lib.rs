@@ -1,3 +1,4 @@
+#![forbid(unsafe_code)]
 #![allow(non_snake_case)]
 //! dbt (Data Build Tool) Model DAG Compiler for SigmaOS
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -105,5 +106,41 @@ mod tests {
 
         // Assert
         assert_eq!(order, vec!["stg_users", "dim_users", "fct_activity"]);
+    }
+}
+
+#[cfg(test)]
+mod dbt_extra_tests {
+    use super::*;
+
+    #[test]
+    fn test_dbt_standalone_model_compile_aaa() {
+        // Arrange
+        let m = DbtCompiler::parse_model("orders", "SELECT * FROM raw.orders");
+        // Act
+        let dag = DbtCompiler::compile_dag(&[m]).unwrap();
+        // Assert
+        assert_eq!(dag, vec!["orders"]);
+    }
+
+    #[test]
+    fn test_dbt_cyclic_dependency_detection_aaa() {
+        // Arrange
+        let m1 = DbtCompiler::parse_model("a", "SELECT * FROM {{ ref('b') }}");
+        let m2 = DbtCompiler::parse_model("b", "SELECT * FROM {{ ref('a') }}");
+        // Act
+        let res = DbtCompiler::compile_dag(&[m1, m2]);
+        // Assert
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_dbt_model_ref_extraction_aaa() {
+        // Arrange
+        let raw = "SELECT a FROM {{ ref('model_a') }} JOIN {{ ref('model_b') }}";
+        // Act
+        let m = DbtCompiler::parse_model("combined", raw);
+        // Assert
+        assert_eq!(m.dependencies, vec!["model_a", "model_b"]);
     }
 }
